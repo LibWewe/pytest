@@ -1,0 +1,980 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh_cn">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>bzjsystem1_v3.bzj_sys &#8212; bzj  文档</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>bzjsystem1_v3.bzj_sys 源代码</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!usr/bin/env python  </span>
+<span class="c1"># -*- coding:utf-8 -*-  </span>
+<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">@file: bzj.py</span>
+<span class="sd">@version: v1.0 </span>
+<span class="sd">@author: WeWe </span>
+<span class="sd">@time: 2018/07/23 11:06</span>
+<span class="sd">@lib v: Python 3.6.4</span>
+<span class="sd">@description:This file is fro ...  </span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">freeze_support</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">pymysql</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">serial</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">modbus_tk</span> <span class="k">import</span> <span class="n">defines</span>
+<span class="kn">from</span> <span class="nn">bzjsystem1_v3</span> <span class="k">import</span> <span class="n">logout</span>
+<span class="kn">from</span> <span class="nn">bzjsystem1_v3</span> <span class="k">import</span> <span class="n">bzjModbusSlave</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
+
+
+<div class="viewcode-block" id="PcRRegsBlock"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcRRegsBlock">[文档]</a><span class="k">class</span> <span class="nc">PcRRegsBlock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    pc端读PLC数据寄存器类，包括不同情况下的工字轮编号和工字轮重量</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;spool1_id_h&quot;</span><span class="p">,</span> <span class="s2">&quot;spool1_id_l&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;spool1_weight_h&quot;</span><span class="p">,</span> <span class="s2">&quot;spool1_weight_l&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;spool2_id_h&quot;</span><span class="p">,</span> <span class="s2">&quot;spool12_id_l&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;spool2_weight_h&quot;</span><span class="p">,</span> <span class="s2">&quot;spool2_weight_l&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;spool_exit1_id_h&quot;</span><span class="p">,</span> <span class="s2">&quot;spool_exit1_id_l&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;spool_exit2_id_h&quot;</span><span class="p">,</span> <span class="s2">&quot;spool_exit2_id_l&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;spool_finished_id_h&quot;</span><span class="p">,</span> <span class="s2">&quot;spool_finished_id_l&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">]</span>
+
+<div class="viewcode-block" id="PcRRegsBlock.RegsName"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcRRegsBlock.RegsName">[文档]</a>    <span class="k">class</span> <span class="nc">RegsName</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        内部类，用于定义PC读数据数据块内各个寄存器名称</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool1_id_h</span> <span class="o">=</span> <span class="s2">&quot;spool1_id_h&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool1_id_l</span> <span class="o">=</span> <span class="s2">&quot;spool1_id_l&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool1_weight_h</span> <span class="o">=</span> <span class="s2">&quot;spool1_weight_h&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool1_weight_l</span> <span class="o">=</span> <span class="s2">&quot;spool1_weight_l&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool2_id_h</span> <span class="o">=</span> <span class="s2">&quot;spool2_id_h&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool2_id_l</span> <span class="o">=</span> <span class="s2">&quot;spool12_id_l&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool2_weight_h</span> <span class="o">=</span> <span class="s2">&quot;spool2_weight_h&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool2_weight_l</span> <span class="o">=</span> <span class="s2">&quot;spool2_weight_l&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool_exit1_id_h</span> <span class="o">=</span> <span class="s2">&quot;spool_exit1_id_h&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool_exit1_id_l</span> <span class="o">=</span> <span class="s2">&quot;spool_exit1_id_l&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool_exit2_id_h</span> <span class="o">=</span> <span class="s2">&quot;spool_exit2_id_h&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool_exit2_id_l</span> <span class="o">=</span> <span class="s2">&quot;spool_exit2_id_l&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool_finished_id_h</span> <span class="o">=</span> <span class="s2">&quot;spool_finished_id_h&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool_finished_id_l</span> <span class="o">=</span> <span class="s2">&quot;spool_finished_id_l&quot;</span></div>
+
+    <span class="n">regs_name</span> <span class="o">=</span> <span class="n">RegsName</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_name</span> <span class="o">=</span> <span class="s2">&quot;pc_r_regs&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_address</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">20</span>
+
+<div class="viewcode-block" id="PcRRegsBlock.get_reg_value"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcRRegsBlock.get_reg_value">[文档]</a>    <span class="k">def</span> <span class="nf">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过寄存器名称，从寄存器缓存区获取该寄存器的值</span>
+<span class="sd">        :param reg_name: 寄存器名称</span>
+<span class="sd">        :return:返回该寄存器的值</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_value</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">reg_name</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="PcRRegsBlock.get_reg_address"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcRRegsBlock.get_reg_address">[文档]</a>    <span class="k">def</span> <span class="nf">get_reg_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过寄存器名称获取寄存器的地址</span>
+<span class="sd">        :param reg_name:寄存器的名称</span>
+<span class="sd">        :return:返回该寄存器的address</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">reg_name</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PcWRegsBlock"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcWRegsBlock">[文档]</a><span class="k">class</span> <span class="nc">PcWRegsBlock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PC端向PLC写数据的数据寄存器，包括，扫码获取的工字轮编号的高位、低位</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;spool1_id_to_plc_h&quot;</span><span class="p">,</span> <span class="s2">&quot;spool1_id_to_plc_l&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">]</span>
+
+<div class="viewcode-block" id="PcWRegsBlock.RegsName"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcWRegsBlock.RegsName">[文档]</a>    <span class="k">class</span> <span class="nc">RegsName</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        内部类，定义了PC写数据数据块的各个寄存器的名称</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool1_id_to_plc_h</span> <span class="o">=</span> <span class="s2">&quot;spool1_id_to_plc_h&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool1_id_to_plc_l</span> <span class="o">=</span> <span class="s2">&quot;spool1_id_to_plc_l&quot;</span></div>
+
+    <span class="n">regs_name</span> <span class="o">=</span> <span class="n">RegsName</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_name</span> <span class="o">=</span> <span class="s2">&quot;pc_w_regs&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_address</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">20</span>
+
+<div class="viewcode-block" id="PcWRegsBlock.set_reg"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcWRegsBlock.set_reg">[文档]</a>    <span class="k">def</span> <span class="nf">set_reg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过寄存器名称，向寄存器缓存区写入数据</span>
+<span class="sd">        :param reg_name:寄存器名称</span>
+<span class="sd">        :param value:将要写入寄存器的值</span>
+<span class="sd">        :return:无</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_value</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">reg_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="PcWRegsBlock.get_reg_address"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcWRegsBlock.get_reg_address">[文档]</a>    <span class="k">def</span> <span class="nf">get_reg_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过寄存器名称获取寄存器的地址</span>
+<span class="sd">        :param reg_name:器存取名称</span>
+<span class="sd">        :return:寄存器地址</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">reg_name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">20</span></div></div>
+
+
+<div class="viewcode-block" id="PcRCoilsBlock"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcRCoilsBlock">[文档]</a><span class="k">class</span> <span class="nc">PcRCoilsBlock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PC端读取PLC信号数据块类，包括是否需要读取工字轮重量，是否有工字轮要退出，是否有工字轮已包好</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;is_scan_first&quot;</span><span class="p">,</span> <span class="s2">&quot;is_get_weight_first&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;is_scan_second&quot;</span><span class="p">,</span> <span class="s2">&quot;is_get_weight_second&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;is_has_exit_first&quot;</span><span class="p">,</span> <span class="s2">&quot;is_has_exit_second&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;is_has_spool_finished&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">]</span>
+
+<div class="viewcode-block" id="PcRCoilsBlock.RegsName"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcRCoilsBlock.RegsName">[文档]</a>    <span class="k">class</span> <span class="nc">RegsName</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        内部类，用于定义PC读信号数据块内各个寄存器名称</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_scan_first</span> <span class="o">=</span> <span class="s2">&quot;is_scan_first&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_get_weight_first</span> <span class="o">=</span> <span class="s2">&quot;is_get_weight_first&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_scan_second</span> <span class="o">=</span> <span class="s2">&quot;is_scan_second&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_get_weight_second</span> <span class="o">=</span> <span class="s2">&quot;is_get_weight_second&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_has_exit_first</span> <span class="o">=</span> <span class="s2">&quot;is_has_exit_first&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_has_exit_second</span> <span class="o">=</span> <span class="s2">&quot;is_has_exit_second&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_has_spool_finished</span> <span class="o">=</span> <span class="s2">&quot;is_has_spool_finished&quot;</span></div>
+
+    <span class="n">regs_name</span> <span class="o">=</span> <span class="n">RegsName</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_name</span> <span class="o">=</span> <span class="s2">&quot;pc_r_coils&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_address</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">20</span>
+
+<div class="viewcode-block" id="PcRCoilsBlock.get_reg_value"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcRCoilsBlock.get_reg_value">[文档]</a>    <span class="k">def</span> <span class="nf">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过寄存器名称，从寄存器值缓存区获取该寄存器的值</span>
+<span class="sd">        :param reg_name: 寄存器名称</span>
+<span class="sd">        :return:返回寄存器的值</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_value</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">reg_name</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="PcRCoilsBlock.get_reg_address"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcRCoilsBlock.get_reg_address">[文档]</a>    <span class="k">def</span> <span class="nf">get_reg_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过寄存器名称获取寄存器的地址</span>
+<span class="sd">        :param reg_name:寄存器名称</span>
+<span class="sd">        :return:寄存器address</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">reg_name</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PcWCoilsBlock"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcWCoilsBlock">[文档]</a><span class="k">class</span> <span class="nc">PcWCoilsBlock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PC端向PLC发送信号的寄存器数据块，包括工字轮状况，工字轮二维码异常，miss系统异常</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;spool_next&quot;</span><span class="p">,</span> <span class="s2">&quot;spool_exit&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;scan_failed&quot;</span><span class="p">,</span> <span class="s2">&quot;miss_fault&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">]</span>
+
+<div class="viewcode-block" id="PcWCoilsBlock.RegsName"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcWCoilsBlock.RegsName">[文档]</a>    <span class="k">class</span> <span class="nc">RegsName</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        内部类，用于定义PC向PLC写信号数据块内各个寄存器名称</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool_next</span> <span class="o">=</span> <span class="s2">&quot;spool_next&quot;</span>  <span class="c1"># 工字轮号获取后，经miss系统验证通过，告诉PLC其可以进入称重阶段</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spool_exit</span> <span class="o">=</span> <span class="s2">&quot;spool_exit&quot;</span>  <span class="c1"># 工字轮号获取后，经miss系统验证未通过，告诉PLC其该工字轮需要退出</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scan_failed</span> <span class="o">=</span> <span class="s2">&quot;scan_failed&quot;</span>  <span class="c1"># 告诉PLC扫码枪扫描二维码失败</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">miss_fault</span> <span class="o">=</span> <span class="s2">&quot;miss_fault&quot;</span></div>
+
+    <span class="n">regs_name</span> <span class="o">=</span> <span class="n">RegsName</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_name</span> <span class="o">=</span> <span class="s2">&quot;pc_w_coils&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_address</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">20</span>
+
+<div class="viewcode-block" id="PcWCoilsBlock.set_reg"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcWCoilsBlock.set_reg">[文档]</a>    <span class="k">def</span> <span class="nf">set_reg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过寄存器名称，想寄存器数据缓存区写入数据</span>
+<span class="sd">        :param reg_name: 寄存器名称</span>
+<span class="sd">        :param value: 写入寄存器的值</span>
+<span class="sd">        :return: 无</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_value</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">reg_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="PcWCoilsBlock.get_reg_address"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.PcWCoilsBlock.get_reg_address">[文档]</a>    <span class="k">def</span> <span class="nf">get_reg_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过寄存器名称获取寄存器的地址</span>
+<span class="sd">        :param reg_name:寄存器名称</span>
+<span class="sd">        :return:寄存器的address</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">reg_name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">20</span></div></div>
+
+
+<div class="viewcode-block" id="BzjSystem"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem">[文档]</a><span class="k">class</span> <span class="nc">BzjSystem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    后台逻辑处理程序类</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        block1  pc读数据{b0：第1称重时工字轮编号high位；b1：第1次称重时工字轮编号low位；</span>
+<span class="sd">                         b2：工字轮第1次称重重量high位；b3：工字轮第1次称重重量low位；</span>
+<span class="sd">                         b4：第2称重时工字轮编号high位；b5：第2次称重时工字轮编号low位；</span>
+<span class="sd">                         b6：工字轮第2次称重重量high位；b7：工字轮第2次称重重量low位；</span>
+<span class="sd">                         b8：通孔退出工字轮编号high位；b9：通孔退出工字轮编号low位；</span>
+<span class="sd">                         b10：二次称重后退出工字轮编号high位；b11：二次称重后退出工字轮编号low位；</span>
+<span class="sd">                         b12：包装完成工字轮编号high位；b13：包装完成工字轮编号low位}</span>
+<span class="sd">        block2  pc写数据{b0：扫码工字轮编号high位(addr=20)；b2：扫码工字轮编号low位(spool_next=21)</span>
+<span class="sd">                        }</span>
+<span class="sd">        block3  pc读信号{b0：扫描枪是否进行第一次扫描；b1：是否读取第一次称重数据</span>
+<span class="sd">                         b2：扫描枪是否进行第二次扫描；b3：是否读取第二次称重数据；</span>
+<span class="sd">                         b4：通孔是否有工字轮退出；b5：二次称重后是否有工字轮退出；</span>
+<span class="sd">                         b6：有工字轮包装完成}</span>
+<span class="sd">        block4  pc写信号{b0：告诉plc将工字轮送入下一工序(addr=20)；b1：告诉plc将工字轮退出(addr=21)；</span>
+<span class="sd">                         b3：告诉PLC扫码枪扫描二维码失败(addr=22)；b4：告诉PLC mess系统异常(addr=23)}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span> <span class="o">=</span> <span class="n">PcRRegsBlock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pc_w_regs_block</span> <span class="o">=</span> <span class="n">PcWRegsBlock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span> <span class="o">=</span> <span class="n">PcRCoilsBlock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pc_w_coils_block</span> <span class="o">=</span> <span class="n">PcWCoilsBlock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>  <span class="c1"># 读取工字轮重量互斥锁</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex2</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>  <span class="c1"># 程序运行信息操作消息队列互斥锁</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex3</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>  <span class="c1">#</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="c1"># self.log = logout.TimedRotatingFileLog(&quot;sys_log&quot;, &quot;.\\log\\&quot;, &quot;sys.log&quot;,logging.DEBUG)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logout</span><span class="o">.</span><span class="n">RotatingFileLog</span><span class="p">(</span><span class="s2">&quot;sys_log&quot;</span><span class="p">,</span> <span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">log</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;sys.log&quot;</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scanner_date1</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scanner_date2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight_date1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight_time1</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight_date2</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight_time2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GZL_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DEBUG</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">INFO</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CRITICAL</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;msgstr&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">my_cof</span> <span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
+        <span class="c1"># my_cof.cofig_update()</span>
+        <span class="n">my_cof</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_level</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ip1</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s1_ip&quot;</span><span class="p">]</span>  <span class="c1"># &quot;172.24.24.222&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port1</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s1_port&quot;</span><span class="p">]</span>  <span class="c1"># 51236</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ip2</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s2_ip&quot;</span><span class="p">]</span>  <span class="c1"># &quot;172.24.24.222&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port2</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s2_port&quot;</span><span class="p">]</span>  <span class="c1"># 51236</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Connect</span><span class="p">(</span><span class="n">my_cof</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">],</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">],</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;passwd&quot;</span><span class="p">],</span>
+                                  <span class="n">my_cof</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;dbName&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">selComPort</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">sel</span><span class="p">[</span><span class="s2">&quot;selComPort&quot;</span><span class="p">]</span>  <span class="c1"># 获取串口的端口</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selBaudRate</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">sel</span><span class="p">[</span><span class="s2">&quot;selBaudRate&quot;</span><span class="p">]</span>  <span class="c1"># 获取串口通讯的波特率</span>
+
+<div class="viewcode-block" id="BzjSystem.create_thread"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.create_thread">[文档]</a>    <span class="k">def</span> <span class="nf">create_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        T1:线程1，1号扫描枪处理线程</span>
+<span class="sd">        T2:线程2，2号扫描枪处理线程</span>
+<span class="sd">        T3:线程3，给mess系统发送完整的工字轮信息</span>
+<span class="sd">        T4:线程4，将逻辑处理程序运行信息传输到界面显示程序中</span>
+<span class="sd">        T5:线程5，串口扫码枪处理线程</span>
+<span class="sd">        T6:线程6，与PLC进行modbus通信的线程</span>
+<span class="sd">        :return:无</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T3</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mess_date_thread</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T3&quot;</span><span class="p">,),</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;T3&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T4</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">msg_to_win_thread</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T4&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,),</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;T4&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T5</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scanner_thread</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T5&quot;</span><span class="p">,),</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;T5&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T6</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">modbus_thread</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T6&quot;</span><span class="p">,),</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;T6&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BzjSystem.scanner_thread"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.scanner_thread">[文档]</a>    <span class="k">def</span> <span class="nf">scanner_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        串口型二维码扫码枪获取二维码数据</span>
+<span class="sd">        :param args:args[0]线程名称</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:无</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scanner_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">wait_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">scanner_flag</span><span class="p">:</span>
+                <span class="c1"># 连接扫码枪测试</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ser</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selComPort</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selBaudRate</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;连接扫码枪异常&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;msgstr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;连接扫码枪异常&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">)</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scanner_flag</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;连接扫码枪成功&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;msgstr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;连接扫码枪成功&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">)</span>
+                    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;由于长时间无法成功连接扫码枪，程序无法正常运行，程序进入间歇等待状态&quot;</span><span class="p">)</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">9000</span><span class="p">:</span>
+                        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_to_connect_plc</span><span class="p">()</span>  <span class="c1"># 等待PLC连接，内部轮询与plc的连接状态，直到成功连接</span>
+
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">scanner_flag</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># rcv = self.ser.read_all().decode(&quot;utf-8&quot;)</span>
+                    <span class="n">rcv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;读取扫码枪数据出现异常&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scanner_flag</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">rcv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                        <span class="c1"># print(rcv)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rcv</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">22</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;扫码枪数据异常&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">rcv1</span> <span class="o">=</span> <span class="n">rcv</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">rcv1</span><span class="p">):</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="n">rcv1</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">scanner_date1</span> <span class="o">=</span> <span class="n">rcv1</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;成功读取二维码数据&quot;</span><span class="p">)</span>
+
+                                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_connect_to_plc</span><span class="p">():</span>  <span class="c1"># 判断是否与PLC通信连接是否成功</span>
+                                    <span class="k">break</span>
+
+                                <span class="n">id_high</span> <span class="o">=</span> <span class="mi">200</span>
+                                <span class="n">id_low</span> <span class="o">=</span> <span class="mi">3000</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">set_block_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_w_regs_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">pc_w_regs_block</span><span class="o">.</span><span class="n">get_reg_address</span><span class="p">(</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">pc_w_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool1_id_to_plc_h</span><span class="p">),</span>
+                                                      <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">id_high</span><span class="p">,</span> <span class="p">])</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">set_block_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_w_regs_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">pc_w_regs_block</span><span class="o">.</span><span class="n">get_reg_address</span><span class="p">(</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">pc_w_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool1_id_to_plc_l</span><span class="p">),</span>
+                                                      <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">id_low</span><span class="p">,</span> <span class="p">])</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">set_block_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_w_coils_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">pc_w_coils_block</span><span class="o">.</span><span class="n">get_reg_address</span><span class="p">(</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">pc_w_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool_next</span><span class="p">),</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">])</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BzjSystem.mess_date_thread"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.mess_date_thread">[文档]</a>    <span class="k">def</span> <span class="nf">mess_date_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        与mess系统通信程序</span>
+<span class="sd">        :param args:args[0]线程名称</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:无</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="c1"># 获取工字轮信息</span>
+            <span class="n">sqlstr</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM gongzilun WHERE gongzilunid=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">GZL_id</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;获取工字轮信息异常&quot;</span><span class="p">)</span>
+            <span class="n">result1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="n">gongzilunid</span> <span class="o">=</span> <span class="n">result1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">zhongliang</span> <span class="o">=</span> <span class="n">result1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">chengzhongtime</span> <span class="o">=</span> <span class="n">result1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">zhongliang2</span> <span class="o">=</span> <span class="n">result1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">]</span>
+            <span class="n">chengzhongtime2</span> <span class="o">=</span> <span class="n">result1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">6</span><span class="p">]</span></div>
+            <span class="c1"># 获取账号信息（登陆账号，登录时间等）</span>
+            <span class="c1"># 获取固定信息（工厂编号，设备编号。。。。）</span>
+
+<div class="viewcode-block" id="BzjSystem.msg_to_win_thread"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.msg_to_win_thread">[文档]</a>    <span class="k">def</span> <span class="nf">msg_to_win_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        与图形界面进程进行通信，通信类型为消息队列</span>
+<span class="sd">        :param args:args[0]线程名称，args[1]用于与前端处理程序通信的消息队列</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:无</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_level</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_level</span> <span class="o">!=</span> <span class="mi">6</span><span class="p">:</span>
+                    <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mutex2</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mutex2</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BzjSystem.modbus_thread"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.modbus_thread">[文档]</a>    <span class="k">def</span> <span class="nf">modbus_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        与plc通信处理线程，通过检测</span>
+<span class="sd">        :param args:</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_to_connect_plc</span><span class="p">()</span>  <span class="c1"># 等待PLC连接，内部轮询与plc的连接状态，直到成功连接</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_connect_to_plc</span><span class="p">():</span>  <span class="c1"># 读PLC数据前</span>
+                    <span class="k">break</span>
+                <span class="c1"># 1.扫描信号寄存器</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                                                          <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">start_address</span><span class="p">,</span>
+                                                                          <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">is_get_weight_first</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># 当值为1时，可以读取第1次称重数据</span>
+                    <span class="n">weight_h</span><span class="p">,</span> <span class="n">weight_l</span><span class="p">,</span> <span class="n">id_h</span><span class="p">,</span> <span class="n">id_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_weight1_and_id</span><span class="p">()</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="n">weight_h</span> <span class="o">*</span> <span class="mi">65536</span> <span class="o">+</span> <span class="n">weight_l</span>
+                    <span class="n">spool_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_h</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_l</span><span class="p">)</span>
+                    <span class="n">load_time_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">into_weight1_date</span><span class="p">(</span><span class="n">spool_id</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">load_time_str</span><span class="p">)</span>
+                    <span class="c1"># 处理完成后清除信号</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                          <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">get_reg_address</span><span class="p">(</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">is_get_weight_first</span><span class="p">),</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">])</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">is_get_weight_second</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># 当值为1时，可以读取第2次称重数据</span>
+                    <span class="n">weight_h</span><span class="p">,</span> <span class="n">weight_l</span><span class="p">,</span> <span class="n">id_h</span><span class="p">,</span> <span class="n">id_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_weight2_and_id</span><span class="p">()</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="n">weight_h</span> <span class="o">*</span> <span class="mi">65536</span> <span class="o">+</span> <span class="n">weight_l</span>
+                    <span class="n">spool_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_h</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_l</span><span class="p">)</span>
+                    <span class="n">load_time_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">into_weight2_date</span><span class="p">(</span><span class="n">spool_id</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">load_time_str</span><span class="p">)</span>
+                    <span class="c1"># 处理完成后，清理信号</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                          <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">get_reg_address</span><span class="p">(</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">is_get_weight_second</span><span class="p">),</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">is_has_exit_first</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># 当值为1时，通孔有工字轮退出</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                                                             <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">start_address</span><span class="p">,</span>
+                                                                             <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                    <span class="n">id_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool_exit1_id_h</span><span class="p">)</span>
+                    <span class="n">id_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool_exit1_id_l</span><span class="p">)</span>
+                    <span class="n">spool_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_h</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_l</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">delete_data_by_spool_id</span><span class="p">(</span><span class="n">spool_id</span><span class="p">)</span>  <span class="c1"># 根据编号删除退出工字轮的信息</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                          <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">get_reg_address</span><span class="p">(</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">is_has_exit_first</span><span class="p">),</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">])</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">is_has_exit_second</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># 当值为1时，第二次称重后有工字轮退出，读取工字轮编号，并删除该条数据</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                                                             <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">start_address</span><span class="p">,</span>
+                                                                             <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                    <span class="n">id_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool_exit2_id_h</span><span class="p">)</span>
+                    <span class="n">id_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool_exit2_id_l</span><span class="p">)</span>
+                    <span class="n">spool_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_h</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_l</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">delete_data_by_spool_id</span><span class="p">(</span><span class="n">spool_id</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                          <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">get_reg_address</span><span class="p">(</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">is_has_exit_second</span><span class="p">),</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">])</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_coils_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">is_has_spool_finished</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># 当值为1是，表示有工字轮已包装完成，通过工字轮编号获取对应数据，将数据打包并发送给miss系统</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                                                             <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">start_address</span><span class="p">,</span>
+                                                                             <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                    <span class="n">id_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool_finished_id_h</span><span class="p">)</span>
+                    <span class="n">id_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool_finished_id_l</span><span class="p">)</span>
+                    <span class="n">spool_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_h</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_l</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">transmit_data_to_miss</span><span class="p">(</span><span class="n">spool_id</span><span class="p">)</span>
+                    <span class="k">pass</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>  <span class="c1"># 每10毫秒轮询一次</span></div>
+
+<div class="viewcode-block" id="BzjSystem.log_msg"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.log_msg">[文档]</a>    <span class="k">def</span> <span class="nf">log_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        打包日志信息</span>
+<span class="sd">        :param flag:</span>
+<span class="sd">        :param msg_str:</span>
+<span class="sd">        :param msg_tuple:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="n">flag</span><span class="p">,</span>
+            <span class="s2">&quot;msgstr&quot;</span><span class="p">:</span> <span class="n">msg_str</span><span class="p">,</span>
+            <span class="s2">&quot;msgtuple&quot;</span><span class="p">:</span> <span class="n">msg_tuple</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex2</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex2</span><span class="o">.</span><span class="n">release</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BzjSystem.verify_r_code_to_miss"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.verify_r_code_to_miss">[文档]</a>    <span class="k">def</span> <span class="nf">verify_r_code_to_miss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        与mess系统通信,用于验证二维码信息是否有效，</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scanner_date1</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>  <span class="c1"># 模拟mess系统反馈数据</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;二维码验证通过&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;二维码验证未通过&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;is a fault&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="BzjSystem.transmit_data_to_miss"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.transmit_data_to_miss">[文档]</a>    <span class="k">def</span> <span class="nf">transmit_data_to_miss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spool_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过工字轮编号获取工字轮数据，然后将</span>
+<span class="sd">        :param spool_id:工字轮编号</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sql_str</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM gongzilun WHERE gongzilunid=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spool_id</span><span class="p">,)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;获取包装完成工字轮数据异常&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;工字轮编号有相同的工字轮&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;未查到相应工字轮数据&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c1"># 将数据data发送给miss系统的部分代码暂时未编写</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;成功将完成的工字轮信息传输到miss系统，ID=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spool_id</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="BzjSystem.get_weight1_and_id"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.get_weight1_and_id">[文档]</a>    <span class="k">def</span> <span class="nf">get_weight1_and_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        通过和PLC通信，获取工字轮第一次称重的重量和ID，</span>
+<span class="sd">        :return:weight_h、weight_l工字轮重量的高位与低位,id_h、id_l工字轮编号的高位与低位</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                                                 <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">start_address</span><span class="p">,</span>
+                                                                 <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">id_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool1_id_h</span><span class="p">)</span>
+        <span class="n">id_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool1_id_l</span><span class="p">)</span>
+        <span class="n">weight_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool1_weight_h</span><span class="p">)</span>
+        <span class="n">weight_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool1_weight_l</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">weight_h</span><span class="p">,</span> <span class="n">weight_l</span><span class="p">,</span> <span class="n">id_h</span><span class="p">,</span> <span class="n">id_l</span></div>
+
+<div class="viewcode-block" id="BzjSystem.get_weight2_and_id"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.get_weight2_and_id">[文档]</a>    <span class="k">def</span> <span class="nf">get_weight2_and_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;</span>
+<span class="sd">        通过和PLC通信，获取工字轮第一次称重的重量和ID，</span>
+<span class="sd">        :return:weight_h、weight_l工字轮重量的高位与低位,id_h、id_l工字轮编号的高位与低位</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">block_name</span><span class="p">,</span>
+                                                                 <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">start_address</span><span class="p">,</span>
+                                                                 <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">id_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool2_id_h</span><span class="p">)</span>
+        <span class="n">id_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool2_id_l</span><span class="p">)</span>
+        <span class="n">weight_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool2_weight_h</span><span class="p">)</span>
+        <span class="n">weight_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">get_reg_value</span><span class="p">(</span><span class="n">reg_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pc_r_regs_block</span><span class="o">.</span><span class="n">regs_name</span><span class="o">.</span><span class="n">spool2_weight_l</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">weight_h</span><span class="p">,</span> <span class="n">weight_l</span><span class="p">,</span> <span class="n">id_h</span><span class="p">,</span> <span class="n">id_l</span></div>
+
+<div class="viewcode-block" id="BzjSystem.new_sql_date"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.new_sql_date">[文档]</a>    <span class="k">def</span> <span class="nf">new_sql_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        将最新获取的二维码数据（工字轮编号）写入到数据库</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gongzilunid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scanner_date1</span>
+        <span class="n">sqlstr</span> <span class="o">=</span> <span class="s2">&quot;INSERT INTO gongzilun (gongzilunid,shifoucheng,zhongliang,chengzhongtime,shifoucheng2) VALUES(&#39;</span><span class="si">%s</span><span class="s2">&#39;,1,</span><span class="si">%f</span><span class="s2">,&#39;</span><span class="si">%s</span><span class="s2">&#39;,0)&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">gongzilunid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_date1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_time1</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;数据库添加新工字轮数据失败&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;数据库添加新工字轮数据成功&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="BzjSystem.into_weight1_date"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.into_weight1_date">[文档]</a>    <span class="k">def</span> <span class="nf">into_weight1_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spool_id</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">weight_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        将第1次称重数据写入到数据库</span>
+<span class="sd">        :param spool_id: 工字轮编号</span>
+<span class="sd">        :param weight: 工字轮第一次称重重量</span>
+<span class="sd">        :param weight_time: 称重时间</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sql_str</span> <span class="o">=</span> <span class="s2">&quot;UPDATE gongzilun SET shifoucheng1 = 1,zhongliang1=</span><span class="si">%d</span><span class="s2">,chengzhongtime1=&#39;</span><span class="si">%s</span><span class="s2">&#39; WHERE gongzilunid=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">weight</span><span class="p">,</span> <span class="n">weight_time</span><span class="p">,</span> <span class="n">spool_id</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;数据库添加工字轮第一次称重数据更新失败&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;数据库添加工字轮第一次称重数据更新成功&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="BzjSystem.into_weight2_date"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.into_weight2_date">[文档]</a>    <span class="k">def</span> <span class="nf">into_weight2_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spool_id</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">weight_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        将第2次称重数据写入到数据库</span>
+<span class="sd">        :param spool_id:</span>
+<span class="sd">        :param weight:</span>
+<span class="sd">        :param weight_time:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sql_str</span> <span class="o">=</span> <span class="s2">&quot;UPDATE gongzilun SET shifoucheng2 = 1,zhongliang2=</span><span class="si">%d</span><span class="s2">,chengzhongtime2=&#39;</span><span class="si">%s</span><span class="s2">&#39; WHERE gongzilunid=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">weight</span><span class="p">,</span> <span class="n">weight_time</span><span class="p">,</span> <span class="n">spool_id</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;数据库添加工字轮第二次称重数据更新失败&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;数据库添加工字轮第二次称重数据更新成功&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="BzjSystem.delete_data_by_spool_id"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.delete_data_by_spool_id">[文档]</a>    <span class="k">def</span> <span class="nf">delete_data_by_spool_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spool_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        根据工字轮编号删除其数据</span>
+<span class="sd">        :param spool_id: 工字轮编号</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sql_str</span> <span class="o">=</span> <span class="s2">&quot;DELETE * FROM gongzilun WHERE gongzilunid=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spool_id</span><span class="p">,)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;工字轮数据删除异常&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;退出工字轮数据已清除，ID=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spool_id</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="BzjSystem.init_modbus"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.init_modbus">[文档]</a>    <span class="k">def</span> <span class="nf">init_modbus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        modbus初始化相关代码</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modbusServer</span> <span class="o">=</span> <span class="n">bzjModbusSlave</span><span class="o">.</span><span class="n">bzjModbusSlave</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modbusServer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;建立modbus从站&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;成功创建从站&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;创建寄存器空间，设置初始值&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modbusServer</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">add_slave</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">add_block</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;pc_r_regs&quot;</span><span class="p">,</span> <span class="n">block_type</span><span class="o">=</span><span class="n">defines</span><span class="o">.</span><span class="n">HOLDING_REGISTERS</span><span class="p">,</span> <span class="n">starting_address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">add_block</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;pc_w_regs&quot;</span><span class="p">,</span> <span class="n">block_type</span><span class="o">=</span><span class="n">defines</span><span class="o">.</span><span class="n">HOLDING_REGISTERS</span><span class="p">,</span> <span class="n">starting_address</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">add_block</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;pc_r_coils&quot;</span><span class="p">,</span> <span class="n">block_type</span><span class="o">=</span><span class="n">defines</span><span class="o">.</span><span class="n">COILS</span><span class="p">,</span> <span class="n">starting_address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">add_block</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;pc_w_coils&quot;</span><span class="p">,</span> <span class="n">block_type</span><span class="o">=</span><span class="n">defines</span><span class="o">.</span><span class="n">COILS</span><span class="p">,</span> <span class="n">starting_address</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;pc_r_regs&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                              <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;pc_w_regs&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                              <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;pc_r_coils&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                              <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;pc_w_coils&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                              <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="BzjSystem.get_block_values"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.get_block_values">[文档]</a>    <span class="k">def</span> <span class="nf">get_block_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_name</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        获取modbus寄存器数据</span>
+<span class="sd">        :param block_name: 寄存器块名称</span>
+<span class="sd">        :param address: 读寄存器块的起始地址</span>
+<span class="sd">        :param size: 读取寄存器数据的数量</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="n">block_name</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="BzjSystem.set_block_values"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.set_block_values">[文档]</a>    <span class="k">def</span> <span class="nf">set_block_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_name</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        向modbus寄存器写入数据</span>
+<span class="sd">        :param block_name:寄存器块名称</span>
+<span class="sd">        :param address:写寄存器的起始地址</span>
+<span class="sd">        :param values:写入寄存器的值，可以是一个list，同时写入到多个连续寄存器中</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="n">block_name</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BzjSystem.destroy_modbus"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.destroy_modbus">[文档]</a>    <span class="k">def</span> <span class="nf">destroy_modbus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        程序结束时需要回收modbus相关资源</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modbusServer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BzjSystem.destroy_logger"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.destroy_logger">[文档]</a>    <span class="k">def</span> <span class="nf">destroy_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        程序结束时，要回收logging相关资源</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BzjSystem.is_number"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.is_number">[文档]</a>    <span class="k">def</span> <span class="nf">is_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        判断字符串是否全部由数字组成</span>
+<span class="sd">        :param num_str:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^[0-9]+$&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">num_str</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="BzjSystem.wait_to_connect_plc"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.wait_to_connect_plc">[文档]</a>    <span class="k">def</span> <span class="nf">wait_to_connect_plc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        等待与PLC建立连接，进入循环等待，直到连接成功</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex3</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># 判断PLC是否已经连接</span>
+            <span class="n">connection</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modbusServer</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">_sockets</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;等待与PLC建立连接&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">connection</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;与PLC建立连接失败&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">21</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;msgstr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;与PLC建立连接失败&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;成功与PLC已成功建立连接&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;msgstr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;成功与PLC已成功建立连接&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;由于长时间无法成功连接PLC，程序无法正常运行，程序进入间歇等待状态&quot;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">9000</span><span class="p">:</span>
+                    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex3</span><span class="o">.</span><span class="n">release</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BzjSystem.is_connect_to_plc"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.is_connect_to_plc">[文档]</a>    <span class="k">def</span> <span class="nf">is_connect_to_plc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        判断pc是否与plc成功建立通信</span>
+<span class="sd">        :return: 成功返回Ture，失败返回False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modbusServer</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">_sockets</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">connection</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;与PLC连接异常断开&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">22</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">[</span><span class="s2">&quot;msgstr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;与PLC连接异常断开&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_err_msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="BzjSystem.run"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.BzjSystem.run">[文档]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        后台系统程序初始化，各线程的创建，启动等</span>
+<span class="sd">        :param args:</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># print(type(self.q_err))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_modbus</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_thread</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T3</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T4</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T5</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T6</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T3</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T4</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T5</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T6</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy_modbus</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy_logger</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../bzjsystem1_v3.html#bzjsystem1_v3.bzj_sys.main">[文档]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">bzj</span> <span class="o">=</span> <span class="n">BzjSystem</span><span class="p">()</span>
+    <span class="n">bzj</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+    <span class="k">pass</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">bzj</a></h1>
+
+
+
+
+
+
+
+
+<h3>导航</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">模块代码</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>快速搜索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="转向" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, wewe.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

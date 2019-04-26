@@ -1,0 +1,7 @@
+mainWin module
+==============
+
+.. automodule:: mainWin
+    :members:
+    :undoc-members:
+    :show-inheritance:

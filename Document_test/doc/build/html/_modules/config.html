@@ -1,0 +1,282 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh_cn">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>config &#8212; bzj  文档</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>config 源代码</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!usr/bin/env python  </span>
+<span class="c1"># -*- coding:utf-8 -*-  </span>
+<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">@file: config.py</span>
+<span class="sd">@version: v1.0 </span>
+<span class="sd">@author: WeWe </span>
+<span class="sd">@time: 2018/07/18 11:33</span>
+<span class="sd">@lib v: Python 3.6.4 /2.7.14</span>
+<span class="sd">@description:This file is fro ...  </span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">BASE_DIRS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+
+<span class="c1"># 数据库配置</span>
+<div class="viewcode-block" id="config"><a class="viewcode-back" href="../config.html#config.config">[文档]</a><span class="k">class</span> <span class="nc">config</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mysql</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;root&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;passwd&quot;</span><span class="p">:</span> <span class="s2">&quot;mysql20180223%&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dbName&quot;</span><span class="p">:</span> <span class="s2">&quot;bzj1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;admin_field&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;uname&quot;</span><span class="p">,</span> <span class="s2">&quot;upwd&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;gongzilun_field&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;gongzilunid&quot;</span><span class="p">,</span> <span class="s2">&quot;zhongliang&quot;</span><span class="p">,</span> <span class="s2">&quot;chengzhongtime&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;shifoucheng2&quot;</span><span class="p">,</span> <span class="s2">&quot;zhongliang2&quot;</span><span class="p">,</span> <span class="s2">&quot;chengzhongtime2&quot;</span><span class="p">,</span> <span class="s2">&quot;gongzilunno&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;lineuser_field&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;uname&quot;</span><span class="p">,</span> <span class="s2">&quot;upwd&quot;</span><span class="p">,</span> <span class="s2">&quot;denglushijian&quot;</span><span class="p">,</span> <span class="s2">&quot;runnormal&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;login_field&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;uname&quot;</span><span class="p">,</span> <span class="s2">&quot;upwd&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;machine_field&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;shebeiid&quot;</span><span class="p">,</span> <span class="s2">&quot;gongchangid&quot;</span><span class="p">,</span> <span class="s2">&quot;gongxuid&quot;</span><span class="p">,</span> <span class="s2">&quot;caijidianid&quot;</span><span class="p">,</span> <span class="s2">&quot;caijidiantype&quot;</span><span class="p">,</span> <span class="s2">&quot;banci&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;denglushijian&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;s1_ip&quot;</span><span class="p">:</span> <span class="s2">&quot;192.168.1.68&quot;</span><span class="p">,</span>  <span class="c1"># &quot;192.168.8.51&quot;</span>
+            <span class="s2">&quot;s1_port&quot;</span><span class="p">:</span> <span class="mi">8080</span><span class="p">,</span>
+            <span class="s2">&quot;s2_ip&quot;</span><span class="p">:</span> <span class="s2">&quot;192.168.1.68&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;s2_port&quot;</span><span class="p">:</span> <span class="mi">8081</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;msg_level&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># 0:没有设置；1：DEBUG；2：INFO；3:WARNING；4：ERROR；5：CRITICAL；6：NONE</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sel</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># 扫码枪串口通讯配置</span>
+            <span class="s2">&quot;selComPort&quot;</span><span class="p">:</span> <span class="s2">&quot;COM1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;selBaudRate&quot;</span><span class="p">:</span> <span class="mi">9600</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="config.cofig_update"><a class="viewcode-back" href="../config.html#config.config.cofig_update">[文档]</a>    <span class="k">def</span> <span class="nf">cofig_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        读取配置文件，获取配置参数，配置参数总共有11个，</span>
+<span class="sd">        没有写的使用默认设置，默认值为上面的字典参数</span>
+
+<span class="sd">        注意：当涉及到目录时，以main所在目录为当前目录</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">config&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">config&quot;</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">config&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;mysql_host=&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">host</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;mysql_user&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">user</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">user</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;mysql_pwd&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">pwd</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;passwd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pwd</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">pwd</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;dbName&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">dbName</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;dbName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dbName</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">dbName</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;s1_ip&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">s1_ip</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s1_ip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">s1_ip</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">s1_ip</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;s1_port&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">s1_port</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s1_port&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s1_port</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">s1_port</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;s2_ip&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">s2_ip</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s2_ip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">s2_ip</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">s2_ip</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;s2_port&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">s2_port</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s2_port&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s2_port</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">s2_port</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;msg_level&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">msg_level</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="k">if</span> <span class="n">msg_level</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">msg_level</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">msg_level</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">msg_level</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INFO&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+                    <span class="k">if</span> <span class="n">msg_level</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">msg_level</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+                    <span class="k">if</span> <span class="n">msg_level</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">msg_level</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+                    <span class="k">if</span> <span class="n">msg_level</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">msg_level</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
+                    <span class="k">if</span> <span class="n">msg_level</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">msg_level</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;NONE&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;selComPort&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">selComPort</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sel</span><span class="p">[</span><span class="s2">&quot;selComPort&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">selComPort</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">selComPort</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;selBaudRate&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">selBaudRate</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sel</span><span class="p">[</span><span class="s2">&quot;selBaudRate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">selBaudRate</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">selBaudRate</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="config.get_config"><a class="viewcode-back" href="../config.html#config.config.get_config">[文档]</a>    <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        读取json文件中的数据</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">config.json&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">json_data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">config</span><span class="se">\\</span><span class="s2">config.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">cfg_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s2">&quot;读取配置数据异常&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="s2">&quot;mysql_host&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;mysql_host&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;mysql_user&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;mysql_user&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;mysql_pwd&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;passwd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;mysql_pwd&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;dbName&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;dbName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;dbName&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;s1_ip&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s1_ip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s1_ip&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;s1_port&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s1_port&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s1_port&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;s2_ip&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s2_ip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s2_ip&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;s2_port&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s2_port&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s2_port&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;msg_level&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INFO&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">elif</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">elif</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="k">elif</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="s2">&quot;selComPort&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sel</span><span class="p">[</span><span class="s2">&quot;selComPort&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;selComPort&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;selBaudRate&quot;</span> <span class="ow">in</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sel</span><span class="p">[</span><span class="s2">&quot;selBaudRate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;selBaudRate&quot;</span><span class="p">]</span></div></div>
+
+
+<span class="c1"># 2个扫码枪ip，port</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../config.html#config.main">[文档]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">cfg_test</span> <span class="o">=</span> <span class="n">config</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cfg_test</span><span class="o">.</span><span class="n">sel</span><span class="p">[</span><span class="s2">&quot;selComPort&quot;</span><span class="p">])</span>
+    <span class="n">cfg_test</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cfg_test</span><span class="o">.</span><span class="n">sel</span><span class="p">[</span><span class="s2">&quot;selComPort&quot;</span><span class="p">])</span>
+    <span class="k">pass</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+    <span class="k">pass</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">bzj</a></h1>
+
+
+
+
+
+
+
+
+<h3>导航</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">模块代码</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>快速搜索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="转向" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, wewe.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

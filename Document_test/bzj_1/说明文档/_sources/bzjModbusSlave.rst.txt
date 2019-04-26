@@ -1,0 +1,7 @@
+bzjModbusSlave module
+=====================
+
+.. automodule:: bzjModbusSlave
+    :members:
+    :undoc-members:
+    :show-inheritance:

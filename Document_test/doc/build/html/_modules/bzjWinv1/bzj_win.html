@@ -1,0 +1,1140 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh_cn">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>bzjWinv1.bzj_win &#8212; bzj  文档</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>bzjWinv1.bzj_win 源代码</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!usr/bin/env python  </span>
+<span class="c1"># -*- coding:utf-8 -*-  </span>
+<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">@file: bzj.py</span>
+<span class="sd">@version: v1.0 </span>
+<span class="sd">@author: WeWe </span>
+<span class="sd">@time: 2018/07/18 11:19</span>
+<span class="sd">@lib v: Python 3.6.4 /2.7.14</span>
+<span class="sd">@description:This file is fro ...  </span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="k">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtWidgets</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="k">import</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">,</span> <span class="n">QStyle</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="k">import</span> <span class="n">QResizeEvent</span><span class="p">,</span> <span class="n">QCloseEvent</span><span class="p">,</span> <span class="n">QMouseEvent</span><span class="p">,</span> <span class="n">QRegExpValidator</span><span class="p">,</span> <span class="n">QStandardItemModel</span><span class="p">,</span> <span class="n">QStandardItem</span><span class="p">,</span> \
+    <span class="n">QIcon</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="k">import</span> <span class="n">QSize</span><span class="p">,</span> <span class="n">QRect</span><span class="p">,</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QTimer</span><span class="p">,</span> <span class="n">QRegExp</span><span class="p">,</span> <span class="n">QPoint</span><span class="p">,</span> <span class="n">QThread</span><span class="p">,</span> <span class="n">QMutex</span><span class="p">,</span> <span class="n">QModelIndex</span><span class="p">,</span> <span class="n">QVariant</span><span class="p">,</span> <span class="n">QObject</span>
+<span class="kn">from</span> <span class="nn">bzjWinv1</span> <span class="k">import</span> <span class="n">loginWin</span>
+<span class="kn">from</span> <span class="nn">bzjWinv1</span> <span class="k">import</span> <span class="n">mainWin</span>
+<span class="kn">from</span> <span class="nn">bzjWinv1</span> <span class="k">import</span> <span class="n">changePwdWin</span>
+<span class="kn">from</span> <span class="nn">bzjWinv1</span> <span class="k">import</span> <span class="n">logMsgWin</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">bzjWinv1</span> <span class="k">import</span> <span class="n">logout</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="k">import</span> <span class="n">sha1</span>
+<span class="kn">import</span> <span class="nn">pymysql</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<div class="viewcode-block" id="loginView"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.loginView">[文档]</a><span class="k">class</span> <span class="nc">loginView</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">,</span> <span class="n">loginWin</span><span class="o">.</span><span class="n">Ui_Form</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        登陆界面初始化</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">loginView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s2">&quot;用户名&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s2">&quot;密  码&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWhatsThis</span><span class="p">(</span><span class="s2">&quot;登陆包装机显示界面&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="changePwdView"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.changePwdView">[文档]</a><span class="k">class</span> <span class="nc">changePwdView</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">,</span> <span class="n">changePwdWin</span><span class="o">.</span><span class="n">Ui_Form</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        修改密码界面初始化</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">changePwdView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oldPwd</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s2">&quot;请输入原始密码&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newPwd1</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s2">&quot;请输入新密码&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newPwd2</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s2">&quot;请再次输入新密码&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWhatsThis</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="logMsgView"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.logMsgView">[文档]</a><span class="k">class</span> <span class="nc">logMsgView</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">,</span> <span class="n">logMsgWin</span><span class="o">.</span><span class="n">Ui_Form</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        日志信息界面</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">logMsgView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_msg_from_sys_thread"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.get_msg_from_sys_thread">[文档]</a><span class="k">class</span> <span class="nc">get_msg_from_sys_thread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">win</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        接收后台程序信息线程初始化</span>
+<span class="sd">        :param win:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">get_msg_from_sys_thread</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">win</span> <span class="o">=</span> <span class="n">win</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="o">.</span><span class="n">q</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="o">.</span><span class="n">msg_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="o">.</span><span class="n">mutex1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_append</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="o">.</span><span class="n">msg_append</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isStart</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="get_msg_from_sys_thread.run"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.get_msg_from_sys_thread.run">[文档]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        线程主程序</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">isStart</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg_append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="set_status_msg_thread"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.set_status_msg_thread">[文档]</a><span class="k">class</span> <span class="nc">set_status_msg_thread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">win</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        处理状态栏信息线程</span>
+<span class="sd">        :param win:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">set_status_msg_thread</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">win</span> <span class="o">=</span> <span class="n">win</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_lable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="o">.</span><span class="n">statuLable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="o">.</span><span class="n">mutex1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="o">.</span><span class="n">msg_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="o">.</span><span class="n">signal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="o">.</span><span class="n">log_msg</span>
+
+<div class="viewcode-block" id="set_status_msg_thread.run"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.set_status_msg_thread.run">[文档]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        线程主程序</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;程序异常&quot;</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">msg_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;msgstr&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">msg_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;msgstr&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;msgtuple&quot;</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;msgtuple&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                        <span class="n">msg_str</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;，&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status_lable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mutex1</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mutex1</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span></div></div>
+            <span class="c1"># else:</span>
+            <span class="c1">#     time.sleep(1)</span>
+
+
+<div class="viewcode-block" id="get_err_msg_from_sys_thread"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.get_err_msg_from_sys_thread">[文档]</a><span class="k">class</span> <span class="nc">get_err_msg_from_sys_thread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">win</span><span class="p">,</span> <span class="n">q_err</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        后台异常处理线程</span>
+<span class="sd">        :param win:</span>
+<span class="sd">        :param q_err:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">get_err_msg_from_sys_thread</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">win</span> <span class="o">=</span> <span class="n">win</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span> <span class="o">=</span> <span class="n">q_err</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isStart</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># print(type(self.q_err))</span>
+
+<div class="viewcode-block" id="get_err_msg_from_sys_thread.run"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.get_err_msg_from_sys_thread.run">[文档]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        线程主程序</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">isStart</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="c1"># print(type(msg), msg)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="mainView"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView">[文档]</a><span class="k">class</span> <span class="nc">mainView</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMainWindow</span><span class="p">,</span> <span class="n">mainWin</span><span class="o">.</span><span class="n">Ui_MainWindow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    主窗口类</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">mainView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># 主要变量初始化</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isShow_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="s2">&quot;admin&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="s2">&quot;456789&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadTimeStr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># 日志相关变量和类的初始化</span>
+        <span class="c1"># self.log = logout.TimedRotatingFileLog(&quot;win_log&quot;,&quot;.\\log\\&quot;, &quot;win.log&quot;,logging.DEBUG)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logout</span><span class="o">.</span><span class="n">RotatingFileLog</span><span class="p">(</span><span class="s2">&quot;win_log&quot;</span><span class="p">,</span> <span class="s2">&quot;.</span><span class="se">\\</span><span class="s2">log</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;win.log&quot;</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_list2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DEBUG</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">INFO</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CRITICAL</span> <span class="o">=</span> <span class="mi">5</span>
+
+        <span class="c1"># 线程锁及线程信号量初始化</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex1</span> <span class="o">=</span> <span class="n">QMutex</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex2</span> <span class="o">=</span> <span class="n">QMutex</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="c1"># 初始化数据库相关信息</span>
+        <span class="n">my_cof</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
+        <span class="c1"># my_cof.cofig_update()</span>
+        <span class="n">my_cof</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_level</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">level</span><span class="p">[</span><span class="s2">&quot;msg_level&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ip1</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s1_ip&quot;</span><span class="p">]</span>  <span class="c1"># &quot;172.24.24.222&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port1</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s1_port&quot;</span><span class="p">]</span>  <span class="c1"># 51236</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ip2</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s2_ip&quot;</span><span class="p">]</span>  <span class="c1"># &quot;172.24.24.222&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port2</span> <span class="o">=</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">scanner</span><span class="p">[</span><span class="s2">&quot;s2_port&quot;</span><span class="p">]</span>  <span class="c1"># 51236</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Connect</span><span class="p">(</span><span class="n">my_cof</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">],</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">],</span> <span class="n">my_cof</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;passwd&quot;</span><span class="p">],</span>
+                                  <span class="n">my_cof</span><span class="o">.</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;dbName&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="c1"># self.db = pymysql.Connect(mysql[&quot;host&quot;], mysql[&quot;user&quot;], mysql[&quot;passwd&quot;], mysql[&quot;dbName&quot;])</span>
+        <span class="c1"># self.cursor = self.db.cursor()</span>
+
+        <span class="c1"># 系统时间显示相关类初始化</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateTime</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateTime</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateTime</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updateTimeShow</span><span class="p">)</span>
+
+        <span class="c1"># 自动刷新显示列表定时器初始化</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Refresh_timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Refresh_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refreshSelf</span><span class="p">)</span>
+
+        <span class="c1"># 扫码枪未连接提示</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scanner_statue_timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scanner_statue_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scanner_statu_change</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scanner_statue_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># PLC未连接提示</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_change</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># 初始化状态栏及时间栏相关类及变量初始化</span>
+        <span class="c1"># self.setWhatsThis(&quot;123456789&quot;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statuLable</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">()</span>
+        <span class="c1"># self.errLable = QtWidgets.QLabel()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nowTimeLable</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statuLable</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignLeft</span><span class="p">)</span>
+        <span class="c1"># self.errLable.setAlignment(Qt.AlignCenter)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nowTimeLable</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignRight</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statuLable</span><span class="p">)</span>
+        <span class="c1"># self.statusbar.addWidget(self.errLable)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nowTimeLable</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;QStatusBar::item{border: 0px}&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statuLable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;就绪&quot;</span><span class="p">)</span>
+        <span class="c1"># self.errLable.setStyleSheet(&quot;color:red;font:bold;font-size:12px&quot;)</span>
+        <span class="c1"># self.errLable.setText(&quot;异常显示&quot;)</span>
+        <span class="n">nowtime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nowTimeLable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nowtime</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nowTimeLable</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:blue;font-size:12px&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statuLable</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:red;font-size:12px&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 用户及登陆信息栏初始化</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textLable</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:blue;font:bold;font-size:14px&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userLable</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:red;font:bold;font-size:14px&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadTimeLable2</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:red;font:bold;font-size:14px&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 设置设置信息为只读</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">machineID</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plantID</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processNo</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">localityNo</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadTime</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classBox</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># 初始化页码显示控件</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setMaximumSize</span><span class="p">(</span><span class="n">QSize</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:blue;font:bold;font-size:14px&quot;</span><span class="p">)</span>
+        <span class="n">validator</span> <span class="o">=</span> <span class="n">QRegExpValidator</span><span class="p">(</span><span class="n">QRegExp</span><span class="p">(</span><span class="s2">&quot;\d+&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setValidator</span><span class="p">(</span><span class="n">validator</span><span class="p">)</span>  <span class="c1"># 设置只能输入数字</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curPage</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalPageLable</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:blue;font:bold;font-size:14px&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 设置PLC和扫码枪连接状态</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;PLC等待连接&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;扫码枪等待连接&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:none;border:none;font:bold;font-size:12px;color:#FF8800&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:none;border:none;font:bold;font-size:12px;color:#FF8800&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 设置各类信号与槽</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prevPageBtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedPrevPageBtn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nextPageBtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedNextPageBtn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onPressedCurPageNoEdit</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setBtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedSetBtn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdBtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedChangePwdBtn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refreshBtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedRefreshBtn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refreshSelfBtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedRefreshSelfBtn</span><span class="p">)</span>
+
+        <span class="c1"># 设置显示列表</span>
+        <span class="c1"># self.showTable.setHorizontalHeaderLabels([&quot;序号&quot;, &quot;工字轮编号&quot;, &quot;重量1&quot;, &quot;称重时间1&quot;, &quot;是否二次称重&quot;, &quot;重量2&quot;, &quot;称重时间2&quot;])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">QStandardItemModel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setColumnCount</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">QStandardItem</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setHorizontalHeaderLabels</span><span class="p">([</span><span class="s2">&quot;序号&quot;</span><span class="p">,</span> <span class="s2">&quot;工字轮编号&quot;</span><span class="p">,</span> <span class="s2">&quot;重量1&quot;</span><span class="p">,</span> <span class="s2">&quot;称重时间1&quot;</span><span class="p">,</span> <span class="s2">&quot;是否二次称重&quot;</span><span class="p">,</span> <span class="s2">&quot;重量2&quot;</span><span class="p">,</span> <span class="s2">&quot;称重时间2&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">verticalHeader</span><span class="p">()</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setTable</span><span class="p">()</span>
+
+        <span class="c1"># 初始化登陆界面类</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span> <span class="o">=</span> <span class="n">loginView</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">loginBtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedLoginBtn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">loginBtn</span><span class="o">.</span><span class="n">pressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedLoginBtn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedLoginBtn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedLoginBtn</span><span class="p">)</span>
+
+        <span class="c1"># 初始化修改密码界面类</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span> <span class="o">=</span> <span class="n">changePwdView</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">changeBtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedChangeBtn_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">changeBtn</span><span class="o">.</span><span class="n">pressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedChangeBtn_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">oldPwd</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedChangeBtn_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd1</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedChangeBtn_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd2</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onClickedChangeBtn_c</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logMsgView</span> <span class="o">=</span> <span class="n">logMsgView</span><span class="p">()</span>
+
+<div class="viewcode-block" id="mainView.updateTimeShow"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.updateTimeShow">[文档]</a>    <span class="k">def</span> <span class="nf">updateTimeShow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        系统时间显示程序</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nowtime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nowTimeLable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nowtime</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="mainView.loginShow"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.loginShow">[文档]</a>    <span class="k">def</span> <span class="nf">loginShow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        登陆界面显示</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;启动登陆程序&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.changePwdShow"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.changePwdShow">[文档]</a>    <span class="k">def</span> <span class="nf">changePwdShow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        修改密码界面显示</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;系统设置&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;修改密码&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">oldPwd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd1</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd2</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.mainWinShow"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.mainWinShow">[文档]</a>    <span class="k">def</span> <span class="nf">mainWinShow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        主界面显示</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userLable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">)</span>
+        <span class="n">nowtime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadTimeLable2</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nowtime</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getSpoolDate</span><span class="p">(</span><span class="n">pageNo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">curPage</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateTable</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTotalPage</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">totalPageLable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;/</span><span class="si">%d</span><span class="s2">(共</span><span class="si">%d</span><span class="s2">页)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">))</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">updateOnlineDate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getMachineSetDate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changePwdBtn</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;系统设置&quot;</span><span class="p">)</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;提示&quot;</span><span class="p">,</span> <span class="s2">&quot;管理员账户验证成功！         &quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span>
+                                    <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;管理员账户验证成功&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T3</span><span class="o">.</span><span class="n">isStart</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T3</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="mainView.verfiyAdmin"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.verfiyAdmin">[文档]</a>    <span class="k">def</span> <span class="nf">verfiyAdmin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        确认登陆账号是否为管理员账号</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM adminuser WHERE uname = &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;数据异常请重新再试&quot;</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="mainView.onClickedLoginBtn"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.onClickedLoginBtn">[文档]</a>    <span class="k">def</span> <span class="nf">onClickedLoginBtn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        确认登陆处理</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;提示&quot;</span><span class="p">,</span> <span class="s2">&quot;用户名或密码不能为空！         &quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span>
+                                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">sqlstr</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM login WHERE uname = &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;提示&quot;</span><span class="p">,</span> <span class="s2">&quot;该用户名不存在！         &quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span>
+                                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">pwd</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">pwd</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loadTimeStr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loginView</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verfiyAdmin</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mainWinShow</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">账号登陆成功&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;提示&quot;</span><span class="p">,</span> <span class="s2">&quot;密码错误！         &quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span>
+                                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.onClickedPrevPageBtn"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.onClickedPrevPageBtn">[文档]</a>    <span class="k">def</span> <span class="nf">onClickedPrevPageBtn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        点击上一页处理</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;查看上一页&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getSpoolDate</span><span class="p">(</span><span class="n">pageNo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">updateTable</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curPage</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span></div>
+
+<div class="viewcode-block" id="mainView.onClickedNextPageBtn"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.onClickedNextPageBtn">[文档]</a>    <span class="k">def</span> <span class="nf">onClickedNextPageBtn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        点击下一页处理</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;查看下一页&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getTotalPage</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalPageLable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;/</span><span class="si">%d</span><span class="s2">(共</span><span class="si">%d</span><span class="s2">页)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getSpoolDate</span><span class="p">(</span><span class="n">pageNo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">updateTable</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curPage</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span></div>
+
+<div class="viewcode-block" id="mainView.onPressedCurPageNoEdit"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.onPressedCurPageNoEdit">[文档]</a>    <span class="k">def</span> <span class="nf">onPressedCurPageNoEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        enter键当前页码框处理</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTotalPage</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">totalPageLable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;/</span><span class="si">%d</span><span class="s2">(共</span><span class="si">%d</span><span class="s2">页)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">))</span>
+        <span class="n">pageNo</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">pageNo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">onClickedRefreshBtn</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pageNo</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">pageNo</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">pageNo</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">:</span>
+            <span class="n">pageNo</span> <span class="o">=</span> <span class="n">pageNo</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pageNo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getSpoolDate</span><span class="p">(</span><span class="n">pageNo</span><span class="o">=</span><span class="n">pageNo</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateTable</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span> <span class="o">=</span> <span class="n">pageNo</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curPage</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;查看第 </span><span class="si">%d</span><span class="s2"> 页&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">curPage</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.onClickedSetBtn"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.onClickedSetBtn">[文档]</a>    <span class="k">def</span> <span class="nf">onClickedSetBtn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        处理点击设置按钮程序</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">btnStr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setBtn</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">btnStr</span> <span class="o">==</span> <span class="s2">&quot;编   辑&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;编辑......&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">machineID</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plantID</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">processNo</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">localityNo</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classBox</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classBox</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setBtn</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;保   存&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changSetBoxColor</span><span class="p">(</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">btnStr</span> <span class="o">==</span> <span class="s2">&quot;保   存&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">machineID</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plantID</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">processNo</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">localityNo</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classBox</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classBox</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">updataMachineSetDate</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;保存成功&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setBtn</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;编   辑&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changSetBoxColor</span><span class="p">(</span><span class="s2">&quot;black&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.onClickedChangePwdBtn"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.onClickedChangePwdBtn">[文档]</a>    <span class="k">def</span> <span class="nf">onClickedChangePwdBtn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        点击系统设置按钮处理程序</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdShow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="mainView.onClickedRefreshBtn"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.onClickedRefreshBtn">[文档]</a>    <span class="k">def</span> <span class="nf">onClickedRefreshBtn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        点击刷新按钮处理程序</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getSpoolDate</span><span class="p">(</span><span class="n">pageNo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">curPage</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateTable</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTotalPage</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">totalPageLable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;/</span><span class="si">%d</span><span class="s2">(共</span><span class="si">%d</span><span class="s2">页)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setTable</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;当前页刷新成功&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.onClickedRefreshSelfBtn"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.onClickedRefreshSelfBtn">[文档]</a>    <span class="k">def</span> <span class="nf">onClickedRefreshSelfBtn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        点击自动刷新按钮</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">btnStr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refreshSelfBtn</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">btnStr</span> <span class="o">==</span> <span class="s2">&quot;自动刷新&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refreshSelfBtn</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;停止刷新&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Refresh_timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refreshBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changePwdBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prevPageBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nextPageBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">btnStr</span> <span class="o">==</span> <span class="s2">&quot;停止刷新&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refreshSelfBtn</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;自动刷新&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Refresh_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refreshBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changePwdBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prevPageBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nextPageBtn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">curPageNoEdit</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;停止自动刷新&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.onClickedChangeBtn_c"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.onClickedChangeBtn_c">[文档]</a>    <span class="k">def</span> <span class="nf">onClickedChangeBtn_c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        点击确认修改程序</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">oldPwd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">oldPwd</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="n">newPwd1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd1</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="n">newPwd2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd2</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">newPwd1</span> <span class="o">!=</span> <span class="n">newPwd2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;提示&quot;</span><span class="p">,</span> <span class="s2">&quot;两次输入的新密码不一致！         &quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span>
+                                   <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">oldPwd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd1</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd2</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">newPwd1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;提示&quot;</span><span class="p">,</span> <span class="s2">&quot;密码不能少于6个字符！         &quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span>
+                                   <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">oldPwd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd1</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd2</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">oldPwd</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;提示&quot;</span><span class="p">,</span> <span class="s2">&quot;原始密码输入错误！         &quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span>
+                                   <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">oldPwd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd1</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">newPwd2</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">(</span><span class="n">newPwd1</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">newPwd1_s1</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="n">sqlStr1</span> <span class="o">=</span> <span class="s2">&quot;UPDATE adminuser SET upwd = &#39;</span><span class="si">%s</span><span class="s2">&#39; WHERE uname = &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">newPwd1_s1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">)</span>
+        <span class="n">sqlStr2</span> <span class="o">=</span> <span class="s2">&quot;UPDATE login SET upwd = &#39;</span><span class="si">%s</span><span class="s2">&#39; WHERE uname = &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">newPwd1_s1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">)</span>
+        <span class="n">sqlStr3</span> <span class="o">=</span> <span class="s2">&quot;UPDATE lineuser SET upwd = &#39;</span><span class="si">%s</span><span class="s2">&#39; WHERE uname = &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">newPwd1_s1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;修改密码异常(001)&quot;</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;修改密码异常(002)&quot;</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;修改密码异常(003)&quot;</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">newPwd1</span>
+        <span class="k">if</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;提示&quot;</span><span class="p">,</span> <span class="s2">&quot;密码修改成功！         &quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span>
+                               <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;密码修改成功&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changePwdView</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="mainView.refreshSelf"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.refreshSelf">[文档]</a>    <span class="k">def</span> <span class="nf">refreshSelf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        自动刷新显示列表</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getSpoolDate</span><span class="p">(</span><span class="n">pageNo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">curPage</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateTable</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTotalPage</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">totalPageLable</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;/</span><span class="si">%d</span><span class="s2">(共</span><span class="si">%d</span><span class="s2">页)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;页面自动刷新中&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.scanner_statu_change"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.scanner_statu_change">[文档]</a>    <span class="k">def</span> <span class="nf">scanner_statu_change</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        当扫码枪未连接是，闪烁来进行提醒</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scanner_statue_flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;扫描枪未连接&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:red;border:none;font:bold;font-size:12px&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scanner_statue_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;扫描枪未连接&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:none;border:none;font:bold;font-size:12px&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scanner_statue_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="mainView.plc_statue_change"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.plc_statue_change">[文档]</a>    <span class="k">def</span> <span class="nf">plc_statue_change</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;PLC未连接&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:red;border:none;font:bold;font-size:12px&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;PLC未连接&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:none;border:none;font:bold;font-size:12px&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="mainView.changSetBoxColor"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.changSetBoxColor">[文档]</a>    <span class="k">def</span> <span class="nf">changSetBoxColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        修改设置栏文字颜色</span>
+<span class="sd">        :param color:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">machineID</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plantID</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processNo</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">localityNo</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classBox</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.setTable"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.setTable">[文档]</a>    <span class="k">def</span> <span class="nf">setTable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        设置列表</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">setColumnWidth</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">setColumnWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">setColumnWidth</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">setColumnWidth</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">setColumnWidth</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">size</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">setColumnWidth</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">size</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">setColumnWidth</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">size</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">horizontalHeader</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">showTable</span><span class="o">.</span><span class="n">setRowHeight</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">size</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">-</span> <span class="n">height</span><span class="p">)</span> <span class="o">/</span> <span class="mi">15</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.updateTable"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.updateTable">[文档]</a>    <span class="k">def</span> <span class="nf">updateTable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        更新列表</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="s2">&quot;是&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="s2">&quot;否&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setTable</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;获取数据异常&quot;</span><span class="p">)</span>
+        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="mainView.log_msg"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.log_msg">[文档]</a>    <span class="k">def</span> <span class="nf">log_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        打包日志信息</span>
+<span class="sd">        :param flag:信息级别</span>
+<span class="sd">        :param msg_str: 信息字符串</span>
+<span class="sd">        :param msg_tuple: 信息数组</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">msg_str</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">msg_tuple</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">msg_str</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">msg_tuple</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">msg_str</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">msg_tuple</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">msg_str</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">msg_tuple</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">msg_str</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">msg_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">msg_tuple</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">msg_tuple</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="n">flag</span><span class="p">,</span>
+            <span class="s2">&quot;msgstr&quot;</span><span class="p">:</span> <span class="n">msg_str</span><span class="p">,</span>
+            <span class="s2">&quot;msgtuple&quot;</span><span class="p">:</span> <span class="n">msg_tuple</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.msg_append"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.msg_append">[文档]</a>    <span class="k">def</span> <span class="nf">msg_append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        消息加入消息队列</span>
+<span class="sd">        :param msg:消息包</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># print(msg)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex1</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutex1</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;消息队列处理异常&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.getSpoolDate"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.getSpoolDate">[文档]</a>    <span class="k">def</span> <span class="nf">getSpoolDate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pageSize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">pageNo</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        获取工字轮数据，对应数据库gongzilun表</span>
+<span class="sd">        :param pageSize:</span>
+<span class="sd">        :param pageNo:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">minRow</span> <span class="o">=</span> <span class="p">(</span><span class="n">pageNo</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">pageSize</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">pageSize</span>
+        <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM gongzilun ORDER BY id DESC LIMIT </span><span class="si">%d</span><span class="s2">,</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">minRow</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="mainView.getTotalPage"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.getTotalPage">[文档]</a>    <span class="k">def</span> <span class="nf">getTotalPage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        获取总页数</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;SELECT COUNT(*) FROM gongzilun&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">totalPage</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">15</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="mainView.updateOnlineDate"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.updateOnlineDate">[文档]</a>    <span class="k">def</span> <span class="nf">updateOnlineDate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        更新登录数据</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clear_lineuser</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;在线用户存在异常数据，未清理&quot;</span><span class="p">)</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">pwd</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;INSERT INTO lineuser (uname,upwd,denglushijian,runnormal)&quot;</span> \
+                 <span class="s2">&quot; VALUES (&#39;</span><span class="si">%s</span><span class="s2">&#39;,&#39;</span><span class="si">%s</span><span class="s2">&#39;,&#39;</span><span class="si">%s</span><span class="s2">&#39;,&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="n">pwd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">loadTimeStr</span><span class="p">,</span> <span class="s2">&quot;True&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;更新在线账号信息异常&quot;</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="mainView.clear_lineuser"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.clear_lineuser">[文档]</a>    <span class="k">def</span> <span class="nf">clear_lineuser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        用与清除在线用户表中的异常数据</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;DELETE FROM lineuser WHERE id &gt; 0&quot;</span>  <span class="c1"># WHERE uname = &#39;admin&#39; OR uname = &#39;user&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="mainView.getMachineSetDate"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.getMachineSetDate">[文档]</a>    <span class="k">def</span> <span class="nf">getMachineSetDate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        获取设置信息</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM machine WHERE id = 1&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">machineID</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plantID</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processNo</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">localityNo</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">4</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">classNo</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">6</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classBox</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">classNo</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadTime</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loadTimeStr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.updataMachineSetDate"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.updataMachineSetDate">[文档]</a>    <span class="k">def</span> <span class="nf">updataMachineSetDate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        更新设置信息</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">classNo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classBox</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">machineID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">machineID</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">plantID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plantID</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">processNo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processNo</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">localityNo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">localityNo</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;UPDATE machine SET shebeiid = &#39;</span><span class="si">%s</span><span class="s2">&#39;,gongchangid = &#39;</span><span class="si">%s</span><span class="s2">&#39;,gongxuid= &#39;</span><span class="si">%s</span><span class="s2">&#39;, </span><span class="se">\</span>
+<span class="s2">                     caijidianid = &#39;</span><span class="si">%s</span><span class="s2">&#39;,caijidiantype = &#39;</span><span class="si">%s</span><span class="s2">&#39;,banci = &#39;</span><span class="si">%s</span><span class="s2">&#39; WHERE id = 1&quot;</span> \
+                     <span class="o">%</span> <span class="p">(</span><span class="n">machineID</span><span class="p">,</span> <span class="n">plantID</span><span class="p">,</span> <span class="n">processNo</span><span class="p">,</span> <span class="n">localityNo</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">classNo</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isAdmin</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;UPDATE machine SET banci = &#39;</span><span class="si">%s</span><span class="s2">&#39; WHERE id = 1&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">classNo</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="mainView.mouseDoubleClickEvent"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.mouseDoubleClickEvent">[文档]</a>    <span class="k">def</span> <span class="nf">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        判断鼠标双击位置是窗口状态栏上</span>
+<span class="sd">        :param args:</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">statu_lable_rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuLable</span><span class="o">.</span><span class="n">rect</span><span class="p">()</span>
+        <span class="n">statu_lable_width</span> <span class="o">=</span> <span class="n">statu_lable_rect</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+        <span class="n">statu_lable_height</span> <span class="o">=</span> <span class="n">statu_lable_rect</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+        <span class="n">statuLable_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuLable</span><span class="o">.</span><span class="n">mapToGlobal</span><span class="p">(</span><span class="n">QPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">mouse_pos</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">globalPos</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">statuLable_pos</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">mouse_pos</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">statuLable_pos</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="n">statu_lable_width</span> <span class="ow">and</span> <span class="n">statuLable_pos</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">mouse_pos</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">statuLable_pos</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="n">statu_lable_height</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;双击状态栏&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.resizeEvent"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.resizeEvent">[文档]</a>    <span class="k">def</span> <span class="nf">resizeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        自动调整页面</span>
+<span class="sd">        :param args:</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">oldSize</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">oldSize</span><span class="p">()</span>
+            <span class="n">nowSize</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statuLable</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span><span class="n">nowSize</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nowTimeLable</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span><span class="n">nowSize</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">oldSize</span> <span class="o">!=</span> <span class="n">QSize</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">layoutWidget</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="n">QRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">nowSize</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">-</span> <span class="mi">12</span><span class="p">,</span> <span class="n">nowSize</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">-</span> <span class="mi">38</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setTable</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;窗口大小变动异常&quot;</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.closeEvent"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.closeEvent">[文档]</a>    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        程序退出事件</span>
+<span class="sd">        :param args:</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;提示&quot;</span><span class="p">,</span> <span class="s2">&quot;确定要退出程序吗？         &quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span> <span class="o">|</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span><span class="p">,</span>
+                               <span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span><span class="p">)</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span><span class="p">:</span>
+            <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;DELETE FROM lineuser WHERE denglushijian = &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">loadTimeStr</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;程序退出，清除用户信息异常&quot;</span><span class="p">,</span> <span class="n">msg_tuple</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_msg</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">msg_str</span><span class="o">=</span><span class="s2">&quot;程序退出&quot;</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">T1</span><span class="o">.</span><span class="n">isStart</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">T1</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">T1</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ignore</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="mainView.err_msg_work"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.err_msg_work">[文档]</a>    <span class="k">def</span> <span class="nf">err_msg_work</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>  <span class="c1"># 连接扫码枪成功</span>
+            <span class="c1"># QMessageBox.warning(self, &quot;提示&quot;, msg[&quot;msgstr&quot;], QMessageBox.Yes, QMessageBox.Yes)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;扫描枪已连接&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:#00DD00;border:none;font:bold;font-size:12px&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scanner_statue_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>  <span class="c1"># 扫码枪未连接</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;扫描枪未连接&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ScanConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:red;border:none;font:bold;font-size:12px&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scanner_statue_timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">20</span><span class="p">:</span>  <span class="c1"># PLC连接成功</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;PLC已连接&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:#00DD00;border:none;font:bold;font-size:12px&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">21</span><span class="p">:</span>  <span class="c1"># PLC未连接</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;PLC未连接&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:red;border:none;font:bold;font-size:12px&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">22</span><span class="p">:</span>  <span class="c1"># 与PLC连接异常断开</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;PLC未连接&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PlcConStatu</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background:red;border:none;font:bold;font-size:12px&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plc_statue_timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="mainView.run"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.mainView.run">[文档]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loginShow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T1</span> <span class="o">=</span> <span class="n">get_msg_from_sys_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T2</span> <span class="o">=</span> <span class="n">set_status_msg_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T3</span> <span class="o">=</span> <span class="n">get_err_msg_from_sys_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_err</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T3</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">err_msg_work</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T2</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T1</span><span class="o">.</span><span class="n">isStart</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T1</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div></div>
+        <span class="c1"># self.T3.isStart = True</span>
+        <span class="c1"># self.T3.start()</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../bzjWinv1.html#bzjWinv1.bzj_win.main">[文档]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">bzj</span> <span class="o">=</span> <span class="n">mainView</span><span class="p">()</span>
+    <span class="n">bzj</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+    <span class="k">pass</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">bzj</a></h1>
+
+
+
+
+
+
+
+
+<h3>导航</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">模块代码</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>快速搜索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="转向" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, wewe.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

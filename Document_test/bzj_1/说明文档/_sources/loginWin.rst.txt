@@ -1,0 +1,7 @@
+loginWin module
+===============
+
+.. automodule:: loginWin
+    :members:
+    :undoc-members:
+    :show-inheritance:

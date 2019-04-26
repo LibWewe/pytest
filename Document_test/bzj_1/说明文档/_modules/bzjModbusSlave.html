@@ -1,0 +1,163 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh_cn">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>bzjModbusSlave &#8212; bzj  文档</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>bzjModbusSlave 源代码</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!usr/bin/env python  </span>
+<span class="c1"># -*- coding:utf-8 -*-  </span>
+<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">@file: bzjModbusSlave.py</span>
+<span class="sd">@version: v1.0 </span>
+<span class="sd">@author: WeWe </span>
+<span class="sd">@time: 2018/07/23 11:16</span>
+<span class="sd">@lib v: Python 3.6.4 /2.7.14</span>
+<span class="sd">@description:This file is fro ...  </span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">modbus_tk</span> <span class="k">import</span> <span class="n">defines</span><span class="p">,</span> <span class="n">modbus_tcp</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<div class="viewcode-block" id="func"><a class="viewcode-back" href="../bzjModbusSlave.html#bzjModbusSlave.func">[文档]</a><span class="k">def</span> <span class="nf">func</span><span class="p">():</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="bzjModbusSlave"><a class="viewcode-back" href="../bzjModbusSlave.html#bzjModbusSlave.bzjModbusSlave">[文档]</a><span class="k">class</span> <span class="nc">bzjModbusSlave</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">create_logger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;console&quot;</span><span class="p">)</span>  <span class="c1"># record_format=&quot;%(message)s&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="n">modbus_tcp</span><span class="o">.</span><span class="n">TcpServer</span><span class="p">()</span>  <span class="c1"># address=&quot;192.168.8.25&quot;</span>
+
+<div class="viewcode-block" id="bzjModbusSlave.start"><a class="viewcode-back" href="../bzjModbusSlave.html#bzjModbusSlave.bzjModbusSlave.start">[文档]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="bzjModbusSlave.stop"><a class="viewcode-back" href="../bzjModbusSlave.html#bzjModbusSlave.bzjModbusSlave.stop">[文档]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../bzjModbusSlave.html#bzjModbusSlave.main">[文档]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">bzjModbus</span> <span class="o">=</span> <span class="n">bzjModbusSlave</span><span class="p">()</span>
+    <span class="n">bzjModbus</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">connection</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bzjModbus</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">_sockets</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
+    <span class="n">slave</span> <span class="o">=</span> <span class="n">bzjModbus</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">add_slave</span><span class="p">(</span><span class="n">slave_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">slave</span><span class="o">.</span><span class="n">add_block</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">block_type</span><span class="o">=</span><span class="n">defines</span><span class="o">.</span><span class="n">HOLDING_REGISTERS</span><span class="p">,</span> <span class="n">starting_address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">slave</span><span class="o">.</span><span class="n">add_block</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="n">block_type</span><span class="o">=</span><span class="n">defines</span><span class="o">.</span><span class="n">COILS</span><span class="p">,</span> <span class="n">starting_address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">slave</span><span class="o">.</span><span class="n">add_block</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="n">block_type</span><span class="o">=</span><span class="n">defines</span><span class="o">.</span><span class="n">HOLDING_REGISTERS</span><span class="p">,</span> <span class="n">starting_address</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">slave</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                     <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+    <span class="n">slave</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">slave</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">block2_1</span> <span class="o">=</span> <span class="n">slave</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;block2_1:&quot;</span><span class="p">,</span> <span class="n">block2_1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">block2_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">block1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">slave</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;block1:&quot;</span><span class="p">,</span> <span class="n">block1</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">block1</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">block1</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">block1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+            <span class="n">slave</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">block1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">65535</span><span class="p">])</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bzjModbus</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">_sockets</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;count:&quot;</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+        <span class="n">block3</span> <span class="o">=</span> <span class="n">slave</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">block_name</span><span class="o">=</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;block3:&quot;</span><span class="p">,</span> <span class="n">block3</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">block3</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+    <span class="k">pass</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">bzj</a></h1>
+
+
+
+
+
+
+
+
+<h3>导航</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">模块代码</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>快速搜索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="转向" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, wewe.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

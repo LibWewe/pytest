@@ -1,0 +1,7 @@
+changePwdWin module
+===================
+
+.. automodule:: changePwdWin
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note self="config">
+	<sql_cfg class="mysql">
+		<mysql_host>localhost</mysql_host>
+		<mysql_user>root</mysql_user>
+		<mysql_pwd>mysql20180223%</mysql_pwd>
+		<dbName>bzj1</dbName>
+	</sql_cfg>
+	<scanner class="scanner">
+		<s1_ip>192.168.1.68</s1_ip>
+		<s1_port>8080</s1_port>
+		<s2_ip>192.168.1.69</s2_ip>
+		<s2_port>8081</s2_port>
+	</scanner>
+	<level class="log">
+		<msg_level>INFO</msg_level>
+	</level>
+	<sel class="comPort">
+		<selComPort>COM2</selComPort>
+		<selBaudRate>9600</selBaudRate>
+	</sel>
+</note>

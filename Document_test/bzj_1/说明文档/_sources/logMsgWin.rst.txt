@@ -1,0 +1,7 @@
+logMsgWin module
+================
+
+.. automodule:: logMsgWin
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,202 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh_cn">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>test1 &#8212; bzj  文档</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>test1 源代码</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!usr/bin/env python  </span>
+<span class="c1"># -*- coding:utf-8 -*-  </span>
+<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">@file: test1.py</span>
+<span class="sd">@version: v1.0 </span>
+<span class="sd">@author: WeWe </span>
+<span class="sd">@time: 2018/07/19 16:04</span>
+<span class="sd">@lib v: Python 3.6.4 /2.7.14</span>
+<span class="sd">@description:This file is fro ...  </span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">bzjWinv1.config</span> <span class="k">import</span> <span class="n">mysql</span>
+<span class="kn">import</span> <span class="nn">pymysql</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="k">import</span> <span class="n">sha1</span>
+
+
+<div class="viewcode-block" id="test1"><a class="viewcode-back" href="../test1.html#test1.test1">[文档]</a><span class="k">class</span> <span class="nc">test1</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SELECT COUNT(*) FROM tableName WHERE exceptions  查询表中满足条件的数据的数量</span>
+<span class="sd">    SELECT * FROM tableName ORDER BY id DESC LIMIT 0,10 查询表中id 最大的10条数据</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Connect</span><span class="p">(</span><span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">],</span> <span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">],</span> <span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;passwd&quot;</span><span class="p">],</span> <span class="n">mysql</span><span class="p">[</span><span class="s2">&quot;dbName&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+<div class="viewcode-block" id="test1.insertDateGZL"><a class="viewcode-back" href="../test1.html#test1.test1.insertDateGZL">[文档]</a>    <span class="k">def</span> <span class="nf">insertDateGZL</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">155</span><span class="p">):</span>
+            <span class="n">gongzilunid</span> <span class="o">=</span> <span class="s2">&quot;GZL&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">zhongliang</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">800</span><span class="p">)</span>
+            <span class="n">chengzhongtime</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+            <span class="n">isNum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>
+            <span class="n">shifoucheng2</span> <span class="o">=</span> <span class="n">isNum</span> <span class="o">%</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">shifoucheng2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">zhongliang2</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">800</span><span class="p">)</span>
+                <span class="n">chengzhongtime2</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">zhongliang2</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">chengzhongtime2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;INSERT INTO gongzilun (gongzilunid,zhongliang,chengzhongtime,shifoucheng2,zhongliang2,chengzhongtime2) &quot;</span> \
+                     <span class="s2">&quot;VALUES (&#39;</span><span class="si">%s</span><span class="s2">&#39;,&#39;</span><span class="si">%f</span><span class="s2">&#39;,&#39;</span><span class="si">%s</span><span class="s2">&#39;,&#39;</span><span class="si">%d</span><span class="s2">&#39;,&#39;</span><span class="si">%f</span><span class="s2">&#39;,&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                         <span class="n">gongzilunid</span><span class="p">,</span> <span class="n">zhongliang</span><span class="p">,</span> <span class="n">chengzhongtime</span><span class="p">,</span> <span class="n">shifoucheng2</span><span class="p">,</span> <span class="n">zhongliang2</span><span class="p">,</span> <span class="n">chengzhongtime2</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;INSERT success&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test1.clearDateGZL"><a class="viewcode-back" href="../test1.html#test1.test1.clearDateGZL">[文档]</a>    <span class="k">def</span> <span class="nf">clearDateGZL</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;DELETE FROM gongzilun WHERE id &gt; 0&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;clear success&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test1.clearLineuser"><a class="viewcode-back" href="../test1.html#test1.test1.clearLineuser">[文档]</a>    <span class="k">def</span> <span class="nf">clearLineuser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;DELETE FROM lineuser WHERE uname = &#39;admin&#39; OR uname = &#39;user&#39;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;clear success&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test1.changepwd"><a class="viewcode-back" href="../test1.html#test1.test1.changepwd">[文档]</a>    <span class="k">def</span> <span class="nf">changepwd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">uname</span> <span class="o">=</span> <span class="s2">&quot;admin&quot;</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">(</span><span class="s2">&quot;123456&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">upwd</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="c1"># sqlStr = &quot;UPDATE adminuser SET uname = &#39;{0}&#39;,upwd = &#39;{1}&#39; WHERE id = 1&quot;.format(uname, upwd)</span>
+        <span class="c1"># sqlStr = &quot;UPDATE login SET upwd = &#39;{0}&#39; WHERE uname = &#39;admin&#39;&quot;.format(upwd)</span>
+        <span class="n">sqlStr</span> <span class="o">=</span> <span class="s2">&quot;UPDATE login SET upwd = &#39;</span><span class="si">{0}</span><span class="s2">&#39; WHERE uname = &#39;user&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">upwd</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlStr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;change success&quot;</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../test1.html#test1.main">[文档]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">test1</span><span class="p">()</span>
+    <span class="c1"># T.insertDateGZL()</span>
+    <span class="c1"># T.clearDateGZL()</span>
+    <span class="c1"># T.clearLineuser()</span>
+    <span class="n">T</span><span class="o">.</span><span class="n">changepwd</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+    <span class="k">pass</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">bzj</a></h1>
+
+
+
+
+
+
+
+
+<h3>导航</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">模块代码</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>快速搜索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="转向" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, wewe.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

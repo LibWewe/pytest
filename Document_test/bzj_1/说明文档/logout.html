@@ -1,0 +1,222 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh_cn">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>logout module &#8212; bzj  文档</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-logout">
+<span id="logout-module"></span><h1>logout module<a class="headerlink" href="#module-logout" title="永久链接至标题">¶</a></h1>
+<p>&#64;file: logout.py
+&#64;version: v1.0 
+&#64;author: WeWe 
+&#64;time: 2018/07/23 10:42
+&#64;lib v: Python 3.6.4 /2.7.14
+&#64;description:This file is fro …</p>
+<dl class="class">
+<dt id="logout.ConsoleLog">
+<em class="property">class </em><code class="descclassname">logout.</code><code class="descname">ConsoleLog</code><span class="sig-paren">(</span><em>logName</em>, <em>path</em>, <em>logFilename</em>, <em>logLevel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#ConsoleLog"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.ConsoleLog" title="永久链接至目标">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(在 Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>仅仅是在控制台输出日志信息</p>
+<dl class="method">
+<dt id="logout.ConsoleLog.critical">
+<code class="descname">critical</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#ConsoleLog.critical"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.ConsoleLog.critical" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.ConsoleLog.debug">
+<code class="descname">debug</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#ConsoleLog.debug"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.ConsoleLog.debug" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.ConsoleLog.error">
+<code class="descname">error</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#ConsoleLog.error"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.ConsoleLog.error" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.ConsoleLog.info">
+<code class="descname">info</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#ConsoleLog.info"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.ConsoleLog.info" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.ConsoleLog.warning">
+<code class="descname">warning</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#ConsoleLog.warning"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.ConsoleLog.warning" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="logout.RotatingFileLog">
+<em class="property">class </em><code class="descclassname">logout.</code><code class="descname">RotatingFileLog</code><span class="sig-paren">(</span><em>logName</em>, <em>path</em>, <em>logFilename</em>, <em>logLevel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#RotatingFileLog"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.RotatingFileLog" title="永久链接至目标">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(在 Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>在控制台和日志文件中同时输出日志信息，日志文件可以控制日志文件的大小，并产生分日志文件</p>
+<dl class="method">
+<dt id="logout.RotatingFileLog.critical">
+<code class="descname">critical</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#RotatingFileLog.critical"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.RotatingFileLog.critical" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.RotatingFileLog.debug">
+<code class="descname">debug</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#RotatingFileLog.debug"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.RotatingFileLog.debug" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.RotatingFileLog.error">
+<code class="descname">error</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#RotatingFileLog.error"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.RotatingFileLog.error" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.RotatingFileLog.info">
+<code class="descname">info</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#RotatingFileLog.info"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.RotatingFileLog.info" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.RotatingFileLog.warning">
+<code class="descname">warning</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#RotatingFileLog.warning"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.RotatingFileLog.warning" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="logout.TimedRotatingFileLog">
+<em class="property">class </em><code class="descclassname">logout.</code><code class="descname">TimedRotatingFileLog</code><span class="sig-paren">(</span><em>logName</em>, <em>path</em>, <em>logFilename</em>, <em>logLevel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#TimedRotatingFileLog"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.TimedRotatingFileLog" title="永久链接至目标">¶</a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(在 Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>在控制台和日志文件中同时输出日志信息，日志文件可以按照时间进行创建分日志</p>
+<dl class="method">
+<dt id="logout.TimedRotatingFileLog.critical">
+<code class="descname">critical</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#TimedRotatingFileLog.critical"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.TimedRotatingFileLog.critical" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.TimedRotatingFileLog.debug">
+<code class="descname">debug</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#TimedRotatingFileLog.debug"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.TimedRotatingFileLog.debug" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.TimedRotatingFileLog.error">
+<code class="descname">error</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#TimedRotatingFileLog.error"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.TimedRotatingFileLog.error" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.TimedRotatingFileLog.info">
+<code class="descname">info</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#TimedRotatingFileLog.info"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.TimedRotatingFileLog.info" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="logout.TimedRotatingFileLog.warning">
+<code class="descname">warning</code><span class="sig-paren">(</span><em>msg_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#TimedRotatingFileLog.warning"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.TimedRotatingFileLog.warning" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="logout.main1">
+<code class="descclassname">logout.</code><code class="descname">main1</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#main1"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.main1" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="logout.main2">
+<code class="descclassname">logout.</code><code class="descname">main2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#main2"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.main2" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="logout.main3">
+<code class="descclassname">logout.</code><code class="descname">main3</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/logout.html#main3"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#logout.main3" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bzj</a></h1>
+
+
+
+
+
+
+
+
+<h3>导航</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>快速搜索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="转向" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, wewe.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/logout.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

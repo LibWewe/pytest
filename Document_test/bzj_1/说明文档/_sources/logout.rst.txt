@@ -1,0 +1,7 @@
+logout module
+=============
+
+.. automodule:: logout
+    :members:
+    :undoc-members:
+    :show-inheritance:
